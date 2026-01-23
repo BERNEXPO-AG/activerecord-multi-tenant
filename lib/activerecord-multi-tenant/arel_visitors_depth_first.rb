@@ -37,9 +37,10 @@ module MultiTenant
     alias visit_Arel_Nodes_OptimizerHints    unary
     alias visit_Arel_Nodes_ValuesList        unary
 
+    # Rails 8.1 compatibility: Arel function nodes no longer have an 'alias' attribute
     def function(obj)
       visit obj.expressions
-      visit obj.alias
+      visit obj.alias if obj.respond_to?(:alias)
       visit obj.distinct
     end
     alias visit_Arel_Nodes_Avg    function
@@ -54,12 +55,12 @@ module MultiTenant
       visit obj.name
       visit obj.expressions
       visit obj.distinct
-      visit obj.alias
+      visit obj.alias if obj.respond_to?(:alias)
     end
 
     def visit_Arel_Nodes_Count(obj)
       visit obj.expressions
-      visit obj.alias
+      visit obj.alias if obj.respond_to?(:alias)
       visit obj.distinct
     end
 
