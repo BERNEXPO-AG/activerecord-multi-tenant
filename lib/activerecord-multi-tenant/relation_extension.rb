@@ -53,8 +53,15 @@ module Arel
       tenant_id = MultiTenant.current_tenant_id
 
       # Build an Arel query
+      #
+      # Rails 7.2–8.0: build_arel(connection)
+      # Rails 8.1+:    build_arel(aliases = nil) — passing a connection adapter
+      #                 here causes AliasTracker to blow up with "undefined method
+      #                 '[]=' for an instance of PostgreSQLAdapter".
       arel = if eager_loading?
                apply_join_dependency.arel
+             elsif ActiveRecord.gem_version >= Gem::Version.create('8.1.0')
+               build_arel(nil)
              elsif ActiveRecord.gem_version >= Gem::Version.create('7.2.0')
                build_arel(klass.connection)
              else
